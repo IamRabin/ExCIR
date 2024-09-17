@@ -1,2 +1,2 @@
 # ExCIR
-Related to interpretability DL project
+This repo. contains the code implemented for ExCiR algorthim . Keep on watch for more updates.
