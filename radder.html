@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>ExCIR Key Findings – RAINBOW RADAR</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@500;600;700;800&display=swap');
+    
+    :root {
+      --bg: #f8f9ff;
+      --card: #ffffff;
+      --text: #1e1b4b;
+      --glow: rgba(99, 102, 241, 0.4);
+      --shadow: rgba(0,0,0,0.1);
+    }
+    [data-theme="dark"] {
+      --bg: #0f0f1f;
+      --card: #1a1a2e;
+      --text: #e0e7ff;
+      --glow: rgba(139, 92, 246, 0.4);
+      --shadow: rgba(0,0,0,0.3);
+    }
+
+    * { box-sizing: border-box; margin:0; padding:0; }
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      padding: 1rem;
+      transition: all 0.4s ease;
+      perspective: 1000px;
+    }
+
+    .container {
+      transform-style: preserve-3d;
+      transition: all 0.4s ease;
+    }
+    .container:hover {
+      transform: translateY(-10px) rotateX(5deg);
+      box-shadow: 0 40px 80px var(--shadow);
+    }
+
+    .card {
+      background: var(--card);
+      border-radius: 2rem;
+      padding: 2.5rem;
+      max-width: 920px;
+      width: 100%;
+      box-shadow: 0 25px 70px var(--shadow);
+      position: relative;
+      overflow: hidden;
+      border: 1px solid rgba(255,255,255,0.2);
+      backdrop-filter: blur(10px);
+    }
+
+    .card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0; height: 10px;
+      background: linear-gradient(90deg, 
+        #ff006e, #ff5e00, #ffaa00, #00f5d4, #0099ff, #8b5cf6, #ff66c4, #00d4ff);
+      background-size: 200%;
+      animation: rainbow 8s linear infinite;
+    }
+    @keyframes rainbow { 0%{background-position:0%} 100%{background-position:200%} }
+
+    .header {
+      text-align: center;
+      margin-bottom: 1.5rem;
+    }
+    h1 {
+      font-size: 2.2rem;
+      font-weight: 800;
+      background: linear-gradient(90deg, #ff006e, #8b5cf6);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 0.4rem;
+    }
+    .tagline {
+      font-weight: 600;
+      font-size: 1.1rem;
+      color: #8b5cf6;
+    }
+
+    .controls {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin: 1.5rem 0;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+    .legend {
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+      font-size: 0.9rem;
+      font-weight: 600;
+    }
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      cursor: pointer;
+      padding: 0.3rem 0.6rem;
+      border-radius: 1rem;
+      transition: 0.2s;
+    }
+    .legend-item:hover { background: rgba(139,92,246,0.1); }
+    .dot { width: 16px; height: 16px; border-radius: 50%; box-shadow: 0 0 10px rgba(0,0,0,0.3); }
+
+    .theme-toggle {
+      background: #e0e7ff;
+      color: #1e1b4b;
+      border: none;
+      padding: 0.6rem 1rem;
+      border-radius: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+    .theme-toggle:hover { background: #c4b5fd; }
+
+    canvas {
+      width: 100% !important;
+      height: 580px !important;
+      border-radius: 1.2rem;
+      background: transparent !important;
+    }
+
+    .actions {
+      display: flex;
+      justify-content: center;
+      gap: 1rem;
+      margin-top: 2rem;
+      flex-wrap: wrap;
+    }
+    button {
+      padding: 0.75rem 1.5rem;
+      border: none;
+      border-radius: 1rem;
+      font-weight: 700;
+      font-size: 0.95rem;
+      cursor: pointer;
+      transition: all 0.3s;
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      box-shadow: 0 6px 16px rgba(0,0,0,0.1);
+    }
+    .btn-rainbow {
+      background: linear-gradient(45deg, #ff006e, #8b5cf6);
+      color: white;
+    }
+    .btn-rainbow:hover {
+      transform: translateY(-4px) scale(1.05);
+      box-shadow: 0 12px 24px rgba(139,92,246,0.4);
+    }
+
+    .note {
+      text-align: center;
+      margin-top: 1.5rem;
+      font-size: 0.95rem;
+      color: #8b5cf6;
+      font-weight: 500;
+    }
+
+    @media print {
+      .controls, .actions, .theme-toggle { display: none; }
+      body { background: white; }
+      .card { box-shadow: none; border: 1px solid #ddd; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="card">
+      <div class="header">
+        <h1>ExCIR Key Findings</h1>
+        <p class="tagline">Q1–Q8: Robust, Efficient, Interpretable</p>
+      </div>
+
+      <div class="controls">
+        <div class="legend" id="legend"></div>
+        <button class="theme-toggle" onclick="toggleTheme()">Dark Mode</button>
+      </div>
+
+      <canvas id="radarChart"></canvas>
+
+      <div class="actions">
+        <button class="btn-rainbow" onclick="exportPNG()">Export PNG</button>
+        <button class="btn-rainbow" onclick="exportSVG()">Export SVG</button>
+        <button class="btn-rainbow" onclick="confettiBurst()">Confetti!</button>
+      </div>
+
+      <p class="note">
+        <strong>All findings ≥ 4.7/5.0</strong> — <em>Click any Q-label to hear the full detailed explanation.</em>
+      </p>
+    </div>
+  </div>
+
+<script>
+  const ctx = document.getElementById('radarChart').getContext('2d');
+  const legend = document.getElementById('legend');
+
+  // RAINBOW PALETTE
+  const colors = [
+    '#ff006e', '#ff5e00', '#ffaa00', '#00f5d4', '#0099ff', '#8b5cf6', '#ff66c4', '#00d4ff'
+  ];
+
+  const labels = ['Q1', 'Q2', 'Q3', 'Q4', 'Q5', 'Q6', 'Q7', 'Q8'];
+
+  // EXACT FULL TEXT FOR VOICE NARRATION (as provided)
+  const fullVoiceText = [
+    "Lightweight Fidelity: Our lightweight models maintain the same feature rankings as the full models across all datasets. This consistency confirms that ExCIR explanations remain stable even when trained on reduced data. Such stability demonstrates that the framework can provide reliable, low-cost explanations suitable for resource-constrained environments.",
+    "External Validity: The top-ranked features identified by ExCIR align well with known domain drivers in both EEG and vehicular datasets—such as age and microstate features in dementia studies, as well as braking and road conditions in vehicle control. This alignment confirms that ExCIR captures meaningful and interpretable dependencies rooted in real-world behavior.",
+    "Predictive Sufficiency: When models selected by ExCIR are retrained using only the top-ranked features, they maintain or even exceed the accuracy of SHAP and LIME while utilizing fewer features. This finding underscores ExCIR's ability to prioritize the most informative signals, enabling efficient yet accurate predictive modeling.",
+    "Robustness to Perturbations: Feature rankings remain highly consistent under Gaussian noise, resampling, and distributional shifts, indicating that ExCIR explanations are resilient to minor changes in data. This robustness ensures reliable interpretability, even in dynamic or noisy environments.",
+    "Dependence and Group Dynamics: The BlockCIR and class-conditioned variants effectively handle correlated or grouped features, such as control and environmental variables, without diminishing the significance of individual contributors. This capability provides clear insights into how related factors jointly influence predictions.",
+    "Efficiency Trade-Off: ExCIR delivers explanations several orders of magnitude faster than perturbation-based methods like SHAP and LIME, as it requires no repeated model calls or gradient computations. This efficiency makes it practical for real-time analysis and large-scale applications.",
+    "Multi-Output Validation: In image classification tasks, ExCIR exhibits stable, class-conditioned behavior with consistent feature importance across outputs. It identifies coherent saliency patterns (e.g., digit strokes, object edges) that remain invariant when outputs are mixed, reinforcing the framework's robustness in multi-output settings.",
+    "Uncertainty and Significance: Bootstrapped confidence intervals and statistical tests reveal narrow variance in feature importance rankings, confirming the method's reliability. These results indicate strong confidence in ExCIR's stability and highlight its suitability for applications that require transparent, statistically sound explanations."
+  ];
+
+  const scores = [5.0, 4.8, 5.0, 4.9, 4.7, 5.0, 4.9, 4.8];
+  const ideal = [5,5,5,5,5,5,5,5];
+
+  // Dynamic gradient
+  let gradient = ctx.createRadialGradient(260, 260, 0, 260, 260, 320);
+  colors.forEach((c, i) => gradient.addColorStop(i/7, c + '33'));
+  gradient.addColorStop(1, '#8b5cf633');
+
+  // Legend + Voice (Click → Speak Full Text)
+  labels.forEach((l, i) => {
+    const div = document.createElement('div');
+    div.className = 'legend-item';
+    div.innerHTML = `<div class="dot" style="background:${colors[i]}"></div><span>${l}</span>`;
+    div.onclick = () => speak(fullVoiceText[i]);
+    legend.appendChild(div);
+  });
+
+  const chart = new Chart(ctx, {
+    type: 'radar',
+    data: {
+      labels,
+      datasets: [{
+        label: 'ExCIR',
+        data: scores,
+        backgroundColor: () => gradient,
+        borderColor: 'rgba(255,255,255,0.4)',
+        borderWidth: 4,
+        pointBackgroundColor: colors,
+        pointBorderColor: '#fff',
+        pointBorderWidth: 4,
+        pointRadius: 11,
+        pointHoverRadius: 16,
+        tension: 0.45
+      }, {
+        label: 'Ideal',
+        data: ideal,
+        borderColor: '#ffffff',
+        borderDash: [12, 8],
+        borderWidth: 4,
+        pointRadius: 0
+      }]
+    },
+    options: {
+      animation: { duration: 3000, easing: 'easeOutElastic' },
+      responsive: true,
+      maintainAspectRatio: false,
+      layout: { padding: 25 },
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          backgroundColor: 'rgba(0,0,0,0.9)',
+          cornerRadius: 14,
+          titleFont: { size: 16, weight: 'bold' },
+          bodyFont: { size: 13.5 },
+          padding: 16,
+          borderColor: colors[0],
+          borderWidth: 3,
+          callbacks: {
+            title: c => fullVoiceText[c[0].dataIndex].split(':')[0],
+            label: c => fullVoiceText[c[0].dataIndex].split(': ')[1]
+          }
+        }
+      },
+      scales: {
+        r: {
+          angleLines: { color: 'rgba(255,255,255,0.2)' },
+          grid: { color: 'rgba(255,255,255,0.1)' },
+          pointLabels: {
+            font: { size: 17, weight: 'bold' },
+            color: colors,
+            padding: 30
+          },
+          ticks: { display: false },
+          min: 0,
+          max: 5.4
+        }
+      }
+    },
+    plugins: [{
+      id: 'glowBadges',
+      afterDatasetsDraw(c) {
+        const { ctx, data, scales: { r } } = c;
+        ctx.save();
+        ctx.font = 'bold 16px Inter';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        data.datasets[0].data.forEach((v, i) => {
+          const p = r.getPointPosition(i, r.getDistanceFromCenterForValue(v) + 35);
+          const col = colors[i];
+          ctx.shadowColor = col;
+          ctx.shadowBlur = 25;
+          ctx.fillStyle = '#fff';
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, 20, 0, Math.PI*2);
+          ctx.fill();
+          ctx.shadowBlur = 0;
+          ctx.fillStyle = col;
+          ctx.fillText(v.toFixed(1), p.x, p.y);
+        });
+        ctx.restore();
+      }
+    }]
+  });
+
+  // Pulse animation
+  setInterval(() => {
+    const newGrad = ctx.createRadialGradient(260, 260, 0, 260, 260, 320);
+    colors.forEach((c, i) => newGrad.addColorStop(i/7, c + (Math.sin(Date.now()/1000)*20 + 50).toString(16).padStart(2,'0')));
+    chart.data.datasets[0].backgroundColor = newGrad;
+    chart.update('none');
+  }, 50);
+
+  // Confetti
+  function confettiBurst() {
+    confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } });
+  }
+  setTimeout(confettiBurst, 800);
+
+  // Voice Synthesis
+  function speak(text) {
+    if ('speechSynthesis' in window) {
+      const utter = new SpeechSynthesisUtterance(text);
+      utter.rate = 0.88;
+      utter.pitch = 1.0;
+      utter.volume = 1.0;
+      utter.lang = 'en-US';
+      speechSynthesis.cancel();
+      speechSynthesis.speak(utter);
+    } else {
+      alert("Voice narration not supported in this browser.");
+    }
+  }
+
+  // Theme Toggle
+  function toggleTheme() {
+    const isDark = document.body.getAttribute('data-theme') === 'dark';
+    document.body.setAttribute('data-theme', isDark ? 'light' : 'dark');
+    document.querySelector('.theme-toggle').textContent = isDark ? 'Dark Mode' : 'Light Mode';
+  }
+
+  // Export PNG
+  function exportPNG() {
+    const link = document.createElement('a');
+    link.download = 'ExCIR_Key_Findings_Radar.png';
+    link.href = chart.toBase64Image();
+    link.click();
+  }
+
+  // Export SVG (fallback)
+  function exportSVG() {
+    alert('SVG: Use Print → Save as PDF → Convert online');
+  }
+
+  // Force white canvas
+  setTimeout(() => {
+    const temp = document.createElement('canvas');
+    temp.width = ctx.canvas.width; temp.height = ctx.canvas.height;
+    const t = temp.getContext('2d');
+    t.fillStyle = 'white'; t.fillRect(0,0,temp.width,temp.height);
+    ctx.drawImage(temp,0,0);
+  }, 200);
+</script>
+</body>
+</html>
