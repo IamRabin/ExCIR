@@ -91,6 +91,64 @@ All four domains share identical predictors, random seeds, and evaluation metric
 ---
 
 
+````markdown
+## 📎 Revision Material
+
+The revision implementation file used for extended experiments has also been attached here as:
+
+
+excirrevision.py
+````
+
+The file contains the **complete revised experimental benchmark pipeline** developed specifically to address the TAI reviewers’ comments. In particular, it includes:
+
+* **Extended Vision Experiments (CIFAR-10 + ResNet-18)**
+  End-to-end training, patch-level feature construction, and ExCIR attribution on high-dimensional image data.
+
+* **Text Experiments (20 Newsgroups)**
+  TF-IDF feature pipeline with multinomial logistic regression, enabling evaluation on real-world high-dimensional text data.
+
+* **Same-Model Comparison Framework**
+  Strict evaluation setup where ExCIR, MI, SHAP, and LIME are applied to the *same trained model* to ensure fair comparison.
+
+* **Robustness Analysis**
+
+  * Gaussian noise perturbation (vision)
+  * Token-dropout perturbation (text)
+  * Stability evaluation via Spearman and Kendall correlations
+  * Top-k ranking preservation analysis
+
+* **Lightweight Environment (LW) Validation**
+  Subsampling-based experiments with:
+
+  * Projection alignment
+  * MMD (Maximum Mean Discrepancy)
+  * KL divergence
+  * Predictive risk gap
+  * Ranking stability thresholds
+
+* **Computational Efficiency Benchmarking**
+  Runtime comparisons across ExCIR, SHAP, LIME, and MI under identical settings.
+
+* **Faithfulness Evaluation**
+
+  * Deletion curves (vision)
+  * Sufficiency analysis (text)
+
+* **Multi-output and Class-Conditioned Explanations**
+  Implementation of CC-CIR and BlockCIR for structured and multi-class settings.
+
+* **Bootstrap-Based Stability Analysis**
+  Statistical validation using repeated resampling (Spearman, Kendall, Top-k overlap).
+
+* **Reproducible Experimental Pipeline**
+  Unified configuration, deterministic seeds, and automated result logging for all experiments.
+
+This file directly corresponds to the **new experiments, robustness evaluations, fairness corrections, and efficiency analysis** introduced in the revised manuscript and supplementary material.
+
+
+
+
 
 ## 📁 Repository Layout
 ```
@@ -104,7 +162,7 @@ utility.py            # Core metrics: CIR / MCIR / BlockCIR / CC-CIR
 radder.html           # Lightweight interactive dashboard (results viewer)
 LICENSE               # License
 README.md             # This file
-
+excirrevision.py      # Extended benchmark: added vision (CIFAR-10 + ResNet-18), text (20 Newsgroups), same-model SHAP/LIME/MI comparison, robustness (noise & subsampling), lightweight validation, runtime and stability analysis
 ````
 
 ---
