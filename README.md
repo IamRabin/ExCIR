@@ -40,20 +40,84 @@ The method generalizes previous CIR formulations (BlockCIR, CC-CIR) and outperfo
 | 🔢 **Digits (MNIST)** | 1,797 grayscale digits | Logistic regression / ConvNet | Multi-output and remix-invariant attribution |
 
 ---
+---
 
+## 📦 Artifact Package (Revision 2)
+
+This section lists every file needed to reproduce the results in the anonymous
+manuscript **“Explainability of Complex AI Models with Correlation Impact Ratio
+(ExCIR)”** and its response-letter additions (highlighted in **blue** in the
+PDF).
+
+### 1  Vision Experiments (CIFAR-10 · ResNet-18)
+
+| File(s) | Description | Cited in |
+|---------|-------------|----------|
+| `training_recipe.csv`,&nbsp;`training_recipe.tex` | Full 200-epoch training protocol (hyper-parameters, data pipeline). | Main § VI-A • Supp. Table S14 |
+| `training_history_seed7.csv`<br>`training_history_seed17.csv`<br>`training_history_seed27.csv` | Per-epoch train/val metrics for seeds 7, 17, 27. | Supp. Fig. S40 |
+| `cifar_accuracy_mean_sd.csv` | Mean ± SD of clean validation & test accuracy. | Main Table XIV |
+| `cifar_noise_stability.csv` | Accuracy & ExCIR-ranking stability under evaluation-only Gaussian noise (σ = 0 … 0.10). | Supp. Table S15 |
+| `cifar_noise_stability.png` | Plot used in Supplementary Fig. S41. | Supp. Fig. S41 |
+
+### 2  Text Experiments (20 Newsgroups · TF-IDF + LogReg)
+
+| File(s) | Description | Cited in |
+|---------|-------------|----------|
+| `text_sports_excir_tokens.png` | Bar-chart of the ten highest-scoring tokens for a *rec.sport.baseball* sample. | Supp. Fig. S42 |
+| `text_sports_highlighted_document.html` | Document excerpt with influential tokens highlighted. | Supp. Fig. S43 |
+
+### 3  Notebooks
+
+| Notebook | Purpose |
+|----------|---------|
+| `ExCIR_REV_2.ipynb` | End-to-end reproduction of the revised CIFAR-10 results. |
+| `ExCIRBlockCIR.ipynb`, `alg_dev.ipynb` | Early prototyping / algorithm-development notes (kept for transparency). |
+
+### 4  Source Code
+
+| Script | Role |
+|--------|------|
+| `dataset.py`, `ex_model.py` | Data loaders and base model definition. |
+| `controlled.py`, `excirrevision.py` | Training / evaluation entry points used in the revision. |
+| `test_model.py` | Quick sanity-check for trained checkpoints. |
+| `utility.py` | Helper utilities (logging, metrics, etc.). |
+
+### 5  Re-creating Key Figures & Tables
+
+```bash
+# 1)  create & activate env
+conda create -n excir python=3.10 pytorch torchvision torchaudio -c pytorch
+pip install pandas matplotlib seaborn scikit-learn
+
+# 2)  learning-curve plot   → suppl_fig_S40.png
+python plotting/plot_learning_curves.py \
+       --logs training_history_seed*.csv \
+       --outfig suppl_fig_S40.png
+
+# 3)  noise-stability plot  → suppl_fig_S41.png
+python plotting/plot_noise_stability.py \
+       --csv cifar_noise_stability.csv \
+       --outfig suppl_fig_S41.png
+
+# 4)  top-token bar-chart   → suppl_fig_S42.png
+python plotting/plot_top_tokens.py \
+       --html text_sports_highlighted_document.html \
+       --outfig suppl_fig_S42.png
+```
+------
 ## 🧮 Theoretical Highlights
 
 ### Lemmas & Theorems
 | Label | Concept | Outcome |
 |:--|:--|:--|
-| Lemma 1 | Gaussian comparison | \( I_P(X;Y) \le I_G(X;Y) + C\|\Sigma_{XY}\|^2_{\text{op}} \) |
-| Lemma 2 | Gaussian MI via CCA | \( I_G(X;Y) = -\tfrac12\sum_i \log(1 - \rho_i^2) \) |
-| Lemma 3 | Elementary bound | \( -\tfrac12 \log(1-u) \le \frac{u}{2(1-u)} \) |
-| Theorem 5 | Unified ExCIR Representation | \( \mathrm{CIR}(Z,S) = \frac{\|E[Z]-E[S]\|^2}{E\|Z-E[Z]\|^2 + E\|S-E[S]\|^2} \) — a monotone transform of \( \rho^2(Z,S) \) |
+| Lemma 1 | Gaussian comparison | $\( I_P(X;Y) \le I_G(X;Y) + C\|\Sigma_{XY}\|^2_{\text{op}} \)$ |
+| Lemma 2 | Gaussian MI via CCA | $\( I_G(X;Y) = -\tfrac12\sum_i \log(1 - \rho_i^2) \)$ |
+| Lemma 3 | Elementary bound | $\( -\tfrac12 \log(1-u) \le \frac{u}{2(1-u)} \)$ |
+| Theorem 5 | Unified ExCIR Representation | \( $\mathrm{CIR}(Z,S) = \frac{\|E[Z]-E[S]\|^2}{E\|Z-E[Z]\|^2 + E\|S-E[S]\|^2}$ \) — a monotone transform of $\( \rho^2(Z,S) \)$ |
 
-**Boundedness**: \( 0 \le \eta_{f_i} \le 1 \)  
+**Boundedness**: $\( 0 \le \eta_{f_i} \le 1 \) $ 
 **Monotonicity**: Higher aligned covariance → higher CIR  
-**MI Consistency**: \( E[\mathrm{CIR}(Z,S)] \le \frac{1 - e^{-2I(Z;S)}}{1 + e^{-2I(Z;S)}} \)
+**MI Consistency**: $\( E[\mathrm{CIR}(Z,S)] \le \frac{1 - e^{-2I(Z;S)}}{1 + e^{-2I(Z;S)}} \)$
 
 ---
 
@@ -233,83 +297,7 @@ python test_model.py --task digits      --topk 8 --seed 7
 * Baselines (lightweight): HSIC (RBF), simple MI proxy; hooks for SHAP
 
 ---
-````markdown
-# ExCIR Artifact Package
 
----
-
-## 1 Vision Experiments (CIFAR-10, ResNet-18)
-
-| File(s) | Description | Used in |
-|---------|-------------|---------|
-| `training_recipe.csv`, `training_recipe.tex` | Complete 200-epoch training protocol (hyper-parameters and data-processing pipeline). | Main § VI-A • Supp. Table S14 |
-| `training_history_seed7.csv`<br>`training_history_seed17.csv`<br>`training_history_seed27.csv` | Per-epoch train / validation metrics for the three random seeds (7, 17, 27). | Supp. Fig. S40 (learning curves) |
-| `cifar_seed_results.csv` | Per-seed clean validation & test accuracy. | Main Table XIV |
-| `cifar_accuracy_mean_sd.csv` | Mean ± SD across the three seeds. | Main Table XIV |
-| `resnet18_seed7.pt`<br>`resnet18_seed17.pt`<br>`resnet18_seed27.pt` | PyTorch checkpoints selected by best clean-validation accuracy. | Reproducibility |
-| `cifar_noise_stability.csv` | Accuracy & explanation-stability under evaluation-only Gaussian noise (σ ∈ {0, 0.01, 0.03, 0.05, 0.10}). | Supp. Table S15 & Fig. S41 |
-| `cifar_noise_stability.png` | Plot for Supplementary Figure S41. | Supp. Fig. S41 |
-| `cifar_truck_excir_examples.png` | Five class-conditioned ExCIR heat-maps for correctly classified “truck” images. | Supp. Fig. S44 |
-
----
-
-## 2 Text Experiments (20 Newsgroups, TF-IDF + LogReg)
-
-| File(s) | Description | Used in |
-|---------|-------------|---------|
-| `text_sports_top_tokens.csv` | Top local ExCIR scores for a sample *rec.sport.baseball* document. | Supp. Table S16 |
-| `text_sports_excir_tokens.png` | Bar chart of the ten highest-scoring tokens. | Supp. Fig. S42 |
-| `text_sports_highlighted_document.html` | Document excerpt with influential tokens highlighted. | Supp. Fig. S43 |
-| `text_result.json` | Full ExCIR token scores for the entire test split. | Reproducibility |
-
----
-
-## 3 Re-creating Figures & Tables
-
-1. **Set up environment**
-
-   ```bash
-   conda create -n excir python=3.10 pytorch torchvision torchaudio -c pytorch
-   pip install pandas matplotlib seaborn scikit-learn
-````
-
-2. **Re-plot learning curves**
-
-   ```bash
-   python plotting/plot_learning_curves.py \
-       --logs training_history_seed*.csv \
-       --outfig suppl_fig_S40.png
-   ```
-
-3. **Re-generate noise-stability plot**
-
-   ```bash
-   python plotting/plot_noise_stability.py \
-       --csv cifar_noise_stability.csv \
-       --outfig suppl_fig_S41.png
-   ```
-
-4. **Visualise ExCIR heat-maps (truck class)**
-
-   ```bash
-   python viz/overlay_excir.py \
-       --ckpt resnet18_seed7.pt \
-       --index 7699 8044 5772 76 2596 \
-       --outfig suppl_fig_S44.png
-   ```
-
-5. **Render top-token bar chart for the 20 NG sample**
-
-   ```bash
-   python plotting/plot_top_tokens.py \
-       --csv text_sports_top_tokens.csv \
-       --outfig suppl_fig_S42.png
-   ```
-
-All plotting/viz scripts are located in the `plotting/` and `viz/` directories;
-each script supports `--help` for additional options.
-
----
 
 
 
