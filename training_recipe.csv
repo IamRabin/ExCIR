@@ -1,0 +1,17 @@
+Item,Value
+Data split,"45,000 train / 5,000 validation / 10,000 test"
+Architecture,CIFAR-adapted ResNet-18
+Stem,"3×3 convolution, stride 1, no max-pooling"
+Normalization,CIFAR-10 channel mean and standard deviation
+Augmentation,Random crop with padding 4 and horizontal flip
+Optimizer,SGD with Nesterov momentum
+Initial learning rate,0.1
+Schedule,Cosine annealing
+Momentum,0.9
+Weight decay,5×10⁻⁴
+Batch size,128
+Epochs,200
+Seeds,"7, 17, 27"
+Selection,Highest clean validation accuracy
+Training noise,None
+Robustness noise,Evaluation only after model freezing
