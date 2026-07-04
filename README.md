@@ -233,6 +233,85 @@ python test_model.py --task digits      --topk 8 --seed 7
 * Baselines (lightweight): HSIC (RBF), simple MI proxy; hooks for SHAP
 
 ---
+````markdown
+# ExCIR Artifact Package
+
+---
+
+## 1 Vision Experiments (CIFAR-10, ResNet-18)
+
+| File(s) | Description | Used in |
+|---------|-------------|---------|
+| `training_recipe.csv`, `training_recipe.tex` | Complete 200-epoch training protocol (hyper-parameters and data-processing pipeline). | Main § VI-A • Supp. Table S14 |
+| `training_history_seed7.csv`<br>`training_history_seed17.csv`<br>`training_history_seed27.csv` | Per-epoch train / validation metrics for the three random seeds (7, 17, 27). | Supp. Fig. S40 (learning curves) |
+| `cifar_seed_results.csv` | Per-seed clean validation & test accuracy. | Main Table XIV |
+| `cifar_accuracy_mean_sd.csv` | Mean ± SD across the three seeds. | Main Table XIV |
+| `resnet18_seed7.pt`<br>`resnet18_seed17.pt`<br>`resnet18_seed27.pt` | PyTorch checkpoints selected by best clean-validation accuracy. | Reproducibility |
+| `cifar_noise_stability.csv` | Accuracy & explanation-stability under evaluation-only Gaussian noise (σ ∈ {0, 0.01, 0.03, 0.05, 0.10}). | Supp. Table S15 & Fig. S41 |
+| `cifar_noise_stability.png` | Plot for Supplementary Figure S41. | Supp. Fig. S41 |
+| `cifar_truck_excir_examples.png` | Five class-conditioned ExCIR heat-maps for correctly classified “truck” images. | Supp. Fig. S44 |
+
+---
+
+## 2 Text Experiments (20 Newsgroups, TF-IDF + LogReg)
+
+| File(s) | Description | Used in |
+|---------|-------------|---------|
+| `text_sports_top_tokens.csv` | Top local ExCIR scores for a sample *rec.sport.baseball* document. | Supp. Table S16 |
+| `text_sports_excir_tokens.png` | Bar chart of the ten highest-scoring tokens. | Supp. Fig. S42 |
+| `text_sports_highlighted_document.html` | Document excerpt with influential tokens highlighted. | Supp. Fig. S43 |
+| `text_result.json` | Full ExCIR token scores for the entire test split. | Reproducibility |
+
+---
+
+## 3 Re-creating Figures & Tables
+
+1. **Set up environment**
+
+   ```bash
+   conda create -n excir python=3.10 pytorch torchvision torchaudio -c pytorch
+   pip install pandas matplotlib seaborn scikit-learn
+````
+
+2. **Re-plot learning curves**
+
+   ```bash
+   python plotting/plot_learning_curves.py \
+       --logs training_history_seed*.csv \
+       --outfig suppl_fig_S40.png
+   ```
+
+3. **Re-generate noise-stability plot**
+
+   ```bash
+   python plotting/plot_noise_stability.py \
+       --csv cifar_noise_stability.csv \
+       --outfig suppl_fig_S41.png
+   ```
+
+4. **Visualise ExCIR heat-maps (truck class)**
+
+   ```bash
+   python viz/overlay_excir.py \
+       --ckpt resnet18_seed7.pt \
+       --index 7699 8044 5772 76 2596 \
+       --outfig suppl_fig_S44.png
+   ```
+
+5. **Render top-token bar chart for the 20 NG sample**
+
+   ```bash
+   python plotting/plot_top_tokens.py \
+       --csv text_sports_top_tokens.csv \
+       --outfig suppl_fig_S42.png
+   ```
+
+All plotting/viz scripts are located in the `plotting/` and `viz/` directories;
+each script supports `--help` for additional options.
+
+---
+
+
 
 ## 📦 Data notes (`dataset.py`)
 
@@ -276,13 +355,19 @@ jupyter nbextension enable --py widgetsnbextension
 }
 ```
 
----
-
-## 📄 License
-
-This project is released under the terms of the **LICENSE** file in this repository.
 
 ---
+
+
+##  Licence
+
+All code and data are released for **research and review purposes only** under
+the BSD-3-Clause licence. Any redistribution must preserve this README and the
+accompanying licence file.
+
+----
+```
+```
 
 
 > *ExCIR unifies correlation geometry and MI for bounded, stable, and efficient explanations across signals, vision, and control.*
